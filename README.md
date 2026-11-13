@@ -1,4 +1,4 @@
-# 千面录 · Qianmianlu
+# 千面录 · Visage
 
 **The Codex of a Thousand Faces — a gallery and manager for your local SillyTavern character cards.**
 **一本收着上千张面孔的册子：把本地 SillyTavern 角色卡当作展品来看、来改、来评分。**
@@ -11,7 +11,7 @@
 
 ## English
 
-Qianmianlu is a Windows desktop app that turns a folder of character cards into an exhibition wall. It indexes your original files in place (nothing is copied), shows what is inside each card, lets you edit it, and can ask an LLM to score it.
+Visage (千面录) is a Windows desktop app that turns a folder of character cards into an exhibition wall. It indexes your original files in place (nothing is copied), shows what is inside each card, lets you edit it, and can ask an LLM to score it.
 
 ### Features
 
@@ -33,7 +33,9 @@ Qianmianlu is a Windows desktop app that turns a folder of character cards into 
 |---|---|
 | ![Lorebook](docs/screenshots/worldbook.jpg) | ![Greetings](docs/screenshots/greetings.jpg) |
 
-Demo cards are original characters (OC) by the author.
+![Rating and review](docs/screenshots/review.jpg)
+
+Demo cards are original characters (OC) by the author. Rating shown was produced by `pg-gemini-4-hydrogen`.
 
 ### Run from source
 
@@ -103,7 +105,7 @@ Stack: Python, FastAPI, SQLite (FTS5), Pillow, watchdog, pywebview, Vue 3, Vite.
 
 ### 截图
 
-截图见上方英文部分。演示用的是作者自己的原创角色卡（OC）。
+截图见上方英文部分，包括首页、悬停、详情页、世界书、开场白和评分点评。演示用的是作者自己的原创角色卡（OC）。
 
 ### 从源码运行
 

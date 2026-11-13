@@ -1,0 +1,57 @@
+{
+  "spec": "chara_card_v3",
+  "spec_version": "3.0",
+  "data": {
+    "name": "三号",
+    "description": "V3 描述",
+    "personality": "",
+    "scenario": "",
+    "first_mes": "v3 开场",
+    "mes_example": "",
+    "creator_notes": "v3 备注",
+    "system_prompt": "",
+    "post_history_instructions": "",
+    "alternate_greetings": [],
+    "tags": [
+      "v3"
+    ],
+    "creator": "tester",
+    "character_version": "3",
+    "group_only_greetings": [
+      "群聊问候"
+    ],
+    "nickname": "小三",
+    "creator_notes_multilingual": {
+      "zh": "中文备注",
+      "en": "english"
+    },
+    "source": [
+      "https://example.invalid/card"
+    ],
+    "assets": [
+      {
+        "type": "icon",
+        "uri": "ccdefault:",
+        "name": "main",
+        "ext": "png"
+      }
+    ],
+    "creation_date": 1700000000,
+    "modification_date": 1700000001,
+    "extensions": {
+      "TavernHelper_scripts": [
+        {
+          "type": "script",
+          "value": {
+            "id": "legacy1",
+            "name": "旧版脚本",
+            "content": "x=1"
+          }
+        }
+      ],
+      "unknown_ext": {
+        "keep": "me"
+      }
+    }
+  }
+}

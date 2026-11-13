@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>卡包 · 方案 B 沉浸</title>
+<style>
+:root{--base:#1B1E27;--ink:#ECEFF4;--dim:#8D94A3;--glass:rgba(22,25,34,.62);--hue:220}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;background:var(--base);color:var(--ink);overflow-x:hidden}
+.top{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:20px;padding:18px 28px;background:linear-gradient(var(--base),transparent)}
+.logo{font-weight:800;font-size:20px;letter-spacing:3px}
+.fold{font-size:13px;color:var(--dim);cursor:pointer}
+.ic{margin-left:auto;opacity:.7;cursor:pointer}
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;padding:70px 4px 4px}
+.cv{position:relative;cursor:pointer;overflow:hidden}
+.art{display:block;width:100%;aspect-ratio:2/3}
+.cv .nm{position:absolute;inset:auto 0 0 0;padding:28px 10px 10px;font-size:14px;font-weight:600;background:linear-gradient(transparent,rgba(10,12,18,.85));opacity:0;transition:opacity .2s}
+.cv:hover .nm,.cv:focus-visible .nm{opacity:1}
+.cv .art{transition:transform .4s}.cv:hover .art{transform:scale(1.04)}
+/* detail */
+.d{display:none;position:fixed;inset:0;z-index:10;background:var(--base)}
+.show .d{display:block}
+.bg{position:absolute;inset:-60px;filter:blur(50px) saturate(1.2);opacity:.55}
+.bg .art{width:100%;height:100%;aspect-ratio:auto}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,22,30,.2),rgba(20,22,30,.85) 55%)}
+.lay{position:relative;height:100%;display:grid;grid-template-columns:42% 1fr}
+.port{display:flex;align-items:flex-end;justify-content:center;padding:60px 0 0}
+.port .art{height:92vh;width:auto;-webkit-mask:linear-gradient(#000 75%,transparent);mask:linear-gradient(#000 75%,transparent)}
+.info{padding:64px 56px 40px 20px;display:flex;flex-direction:column;overflow:auto}
+.back{font-size:13px;color:var(--dim);cursor:pointer;margin-bottom:28px}
+h1{font-size:52px;font-weight:800;line-height:1.1}
+.by{color:var(--dim);margin:12px 0}
+.tags{display:flex;gap:8px}.tags i{font-style:normal;font-size:12px;padding:3px 10px;border-radius:99px;background:hsl(var(--hue) 50% 50% / .22);color:hsl(var(--hue) 80% 82%)}
+.tabs{display:flex;gap:6px;margin:34px 0 18px}
+.tabs a{font-size:13px;padding:7px 14px;border-radius:99px;cursor:pointer;color:var(--dim)}
+.tabs a.on{background:hsl(var(--hue) 60% 60% / .25);color:var(--ink)}
+.pane{flex:1;line-height:1.85}
+.vn{background:var(--glass);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:30px 30px 22px;position:relative;margin-top:14px}
+.vn .who{position:absolute;top:-14px;left:22px;font-size:13px;font-weight:700;padding:4px 14px;border-radius:6px;background:hsl(var(--hue) 55% 48%)}
+.vn p{white-space:pre-wrap;font-size:17px;line-height:2;font-family:"KaiTi","STKaiti",serif}
+.vn .nx{display:flex;justify-content:flex-end;gap:14px;font-size:12px;color:var(--dim);margin-top:12px}.vn .nx a{cursor:pointer;color:hsl(var(--hue) 80% 78%)}
+.row{display:flex;gap:10px;align-items:baseline;padding:12px 16px;border-radius:10px;background:var(--glass);margin-bottom:6px;flex-wrap:wrap}
+.row b{font-weight:600}.row small{font-size:12px;color:hsl(var(--hue) 80% 80%)}.row .r{margin-left:auto;font-size:12px;color:var(--dim)}
+.off{opacity:.4}
+pre{background:var(--glass);border-radius:10px;padding:16px;font-size:12px;overflow:auto}
+.rate b{font-size:64px;font-weight:800;color:hsl(var(--hue) 80% 78%)}
+.note{position:fixed;right:16px;bottom:12px;font-size:12px;color:var(--dim);z-index:20}
+@media (prefers-reduced-motion:reduce){.cv .art,.cv .nm{transition:none}}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo">卡包</div><span class="fold">全部 ▾</span>
+<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+<div id="m"><div class="wall" id="wall"></div><div class="d" id="d"></div></div>
+<div class="note">方案 B · 封面和分数是占位，鼠标移到封面上才出名字</div>
+<script>
+const C=[
+{n:'《道渊》v5.1',a:'玄机子',t:['仙侠','Sci-Fi'],wb:285,rx:9,gr:2,sc:4.6,h:[255,205]},
+{n:'人生模拟器',a:'模拟社',t:['模拟'],wb:140,rx:12,gr:2,sc:4.8,h:[300,330]},
+{n:'怪奇录',a:'夜行',t:['鬼怪','民俗'],wb:64,rx:3,gr:2,sc:4.1,h:[350,15]},
+{n:'海贼王叙事者',a:'草帽',t:['冒险'],wb:96,rx:4,gr:2,sc:4.3,h:[200,230]},
+{n:'安达与岛村',a:'白昼',t:['校园'],wb:18,rx:2,gr:2,sc:3.9,h:[150,190]},
+{n:'谎言系统',a:'K',t:['都市'],wb:22,rx:5,gr:2,sc:3.4,h:[30,50]},
+{n:'郭公之巢',a:'灰鸦',t:['悬疑'],wb:30,rx:1,gr:2,sc:3.1,h:[90,120]},
+{n:'秦始皇',a:'史官',t:['历史'],wb:41,rx:0,gr:2,sc:2.8,h:[15,40]},
+{n:'雪国列车长',a:'北风',t:['末日'],wb:77,rx:6,gr:2,sc:4.5,h:[190,220]},
+{n:'猫咖店长',a:'团子',t:['日常'],wb:9,rx:1,gr:2,sc:3.6,h:[35,330]},
+{n:'深海旅馆',a:'鲸落',t:['奇幻'],wb:33,rx:2,gr:2,sc:4.0,h:[180,250]},
+{n:'废土邮差',a:'锈',t:['末日'],wb:52,rx:3,gr:2,sc:3.7,h:[40,10]}];
+const WB=[['NPC人物生成规则',[],1],['秘境/遗迹生成',[],1],['林若悠',['玉灵宫圣女','空明幻体'],1],['宫银叶',['残影身法','青云步'],1],['玄天界宗门',[],0]];
+const RX=[['[美化]变量更新中','AI回复',1],['[不发送]去除变量更新','AI回复',1],['不输出思考','AI回复',1],['仅输出最后三条状态栏','AI回复',0]];
+const GR=['（山门外的雨下了三天。）\n\n你睁开眼时，掌心那枚灰白道种正微微发烫。远处传来钟声，九响，是玄天宗收徒的日子。\n\n「醒了？」披着雨蓑的少女蹲在你面前，「你在泥里躺了半宿。」','赛博坊市的霓虹映在积水里。\n\n你的义眼弹出一行字：道种同步率 3%。'];
+function art(c,p){const[a,b]=c.h;return`<svg class="art" viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g${p}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${a} 55% 58%)"/><stop offset="1" stop-color="hsl(${b} 60% 20%)"/></linearGradient><radialGradient id="r${p}" cx=".5" cy=".32" r=".6"><stop offset="0" stop-color="hsl(${a} 90% 88%)" stop-opacity=".7"/><stop offset="1" stop-color="hsl(${a} 90% 88%)" stop-opacity="0"/></radialGradient></defs><rect width="200" height="300" fill="url(#g${p})"/><rect width="200" height="300" fill="url(#r${p})"/><circle cx="100" cy="120" r="34" fill="hsl(${b} 45% 12%)" opacity=".78"/><path d="M26 300C34 206 166 206 174 300Z" fill="hsl(${b} 45% 12%)" opacity=".82"/></svg>`}
+const m=document.getElementById('m');
+document.getElementById('wall').innerHTML=C.map((c,i)=>`<div class="cv" tabindex="0" onclick="op(${i})">${art(c,'c'+i)}<div class="nm">${c.n}</div></div>`).join('');
+let gi=0,cur;
+function op(i){cur=C[i];gi=0;const c=cur;document.documentElement.style.setProperty('--hue',c.h[0]);
+document.getElementById('d').innerHTML=`<div class="bg">${art(c,'b')}</div><div class="shade"></div><div class="lay"><div class="port">${art(c,'p')}</div>
+<div class="info"><a class="back" onclick="m.classList.remove('show')">返回</a><h1>${c.n}</h1><div class="by">${c.a} 制作</div><div class="tags">${c.t.map(x=>`<i>${x}</i>`).join('')}</div>
+<div class="tabs" id="tb">${['开场白','人设','世界书 '+c.wb,'正则 '+c.rx,'脚本','评分'].map((x,k)=>`<a data-k="${k}" class="${k?'':'on'}">${x}</a>`).join('')}</div><div class="pane" id="pn"></div></div></div>`;
+m.classList.add('show');document.querySelectorAll('#tb a').forEach(a=>a.onclick=()=>{document.querySelectorAll('#tb a').forEach(x=>x.classList.remove('on'));a.classList.add('on');pane(+a.dataset.k)});pane(0)}
+function pane(k){const p=document.getElementById('pn');
+if(k==0)p.innerHTML=`<div class="vn"><span class="who">${cur.n}</span><p>${GR[gi]}</p><div class="nx"><span>${gi+1} / ${GR.length}</span><a onclick="gi=(gi+1)%GR.length;pane(0)">换一个开场 ▸</a></div></div>`;
+if(k==1)p.innerHTML=`<p>玄天界，灵气与算力共生。你是被宗门遗弃的外门弟子，体内藏着一枚无人认得的道种。</p>`;
+if(k==2)p.innerHTML=WB.map(w=>`<div class="row ${w[2]?'':'off'}"><b>${w[0]}</b>${w[1].map(x=>`<small>${x}</small>`).join('')}<span class="r">${w[2]?'':'已关闭'}</span></div>`).join('');
+if(k==3)p.innerHTML=RX.map(w=>`<div class="row ${w[2]?'':'off'}"><b>${w[0]}</b><small>${w[1]}</small><span class="r">${w[2]?'':'已禁用'}</span></div>`).join('');
+if(k==4)p.innerHTML=`<pre>eventOn(tavern_events.MESSAGE_RECEIVED, () => {
+  const vars = getVariables({ type: 'chat' });
+  renderStatusBar(vars['道种同步率']);
+});</pre>`;
+if(k==5)p.innerHTML=`<div class="rate"><b>${cur.sc.toFixed(1)}</b><div style="color:var(--dim)">评分标准待定</div></div>`}
+</script>
+</body>
+</html>

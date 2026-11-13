@@ -1,0 +1,186 @@
+{
+  "version": 2,
+  "description": "千面录角色卡评分规则（娱乐向）。单项分由大模型打，总分由程序按本文件计算；提示词里的数字必须与本文件一致。",
+  "stance": "娱乐向：完成度高、能好好玩的卡落在 8~9；个别待补充、部分次要 NPC 没写这类小缺口不降档；只有真正污染上下文、影响游玩的问题才明显扣分。",
+  "score_scale": {
+    "min": 0,
+    "max": 10,
+    "decimals": 1,
+    "rounding": "half_up"
+  },
+  "total_formula": {
+    "expression": "clamp(base + min(sum(bonus), bonus_cap) - min(sum(min(sum(deductions of type t), per_type_cap) for t), deduction_cap), 0, 10)",
+    "base_expression": "sum(score_i * weight_i for applicable i) / sum(weight_i for applicable i)",
+    "note": "全部适用时分母为 100，即 Σ(单项分×权重)/100；有不适用项时按适用项权重之和归一，等价于把不适用项的权重按比例分给其他项。先截断到 [0,10] 再四舍五入到一位小数。模型不计算总分。"
+  },
+  "dimensions": [
+    {
+      "id": "character",
+      "name": "角色人设",
+      "tier": 1,
+      "weight": 19,
+      "scored_by": "model",
+      "scope": "卡里写出的所有角色设定（含写了固定身份的 {{user}}），NSFW 内容一并评。",
+      "na_decided_by": "model",
+      "na_when": "卡里没有任何角色设定（如纯工具卡）。"
+    },
+    {
+      "id": "world",
+      "name": "世界观背景",
+      "tier": 1,
+      "weight": 18,
+      "scored_by": "model",
+      "scope": "时代、社会、规则、力量体系、组织势力、历史等宏观设定。",
+      "na_decided_by": "model",
+      "na_when": "卡里没有世界观内容（如现实日常背景且未写任何设定）。"
+    },
+    {
+      "id": "scene",
+      "name": "场景塑造",
+      "tier": 1,
+      "weight": 18,
+      "scored_by": "model",
+      "scope": "具体地点、日程、事件种子、可进入的情境。",
+      "na_decided_by": "model",
+      "na_when": "卡里没有任何地点、事件或情境设定。"
+    },
+    {
+      "id": "lorebook_structure",
+      "name": "世界书组织",
+      "tier": 1,
+      "weight": 15,
+      "scored_by": "model",
+      "scope": "条目拆分（一条一事）、蓝灯常驻/绿灯触发用得对不对、关键词宽窄、死条目、蓝灯体量。",
+      "na_decided_by": "program",
+      "na_when": "卡内没有世界书，或世界书没有任何启用条目。"
+    },
+    {
+      "id": "player_space",
+      "name": "玩家空间",
+      "tier": 2,
+      "weight": 8,
+      "scored_by": "model",
+      "scope": "只看开场白以外的内容（核心规则、{{user}} 条目、事件种子、示例对话、MVU 规则等）会不会、允不允许替 {{user}} 说话、做决定。开场白里替 {{user}} 说话只在 opening 的 freedom 计，本项不再算。{{user}} 写了详细固定身份是正当设计，不扣分。",
+      "na_decided_by": "model",
+      "na_when": "卡的玩法里不存在 {{user}} 这个角色。"
+    },
+    {
+      "id": "opening",
+      "name": "开场白",
+      "tier": 2,
+      "weight": 8,
+      "scored_by": "program_and_model",
+      "scope": "开场白数量和字数由程序算，每条的引导和自由度由模型判，程序按 opening 规则合成本项分。开场白里替 {{user}} 说话、做选择只在 freedom 计。文风不评。",
+      "na_decided_by": "program",
+      "na_when": "卡没有任何非空开场白。"
+    },
+    {
+      "id": "lorebook_placement",
+      "name": "位置与优先级",
+      "tier": 2,
+      "weight": 7,
+      "scored_by": "model",
+      "scope": "只看世界书条目的 position、depth、order。",
+      "na_decided_by": "program",
+      "na_when": "卡内没有世界书，或世界书没有任何启用条目。"
+    },
+    {
+      "id": "guidance",
+      "name": "说明与引导",
+      "tier": 2,
+      "weight": 7,
+      "scored_by": "model",
+      "scope": "只看给 AI 看的指南：核心规则、事件种子使用说明、二次解释、system_prompt、post_history_instructions 等，NSFW 指导一并评。creator_notes 不评分，空着不扣分。文风要求不在本项评。",
+      "na_decided_by": "model",
+      "na_when": "卡里没有任何写给 AI 的指南。"
+    }
+  ],
+  "na_redistribution": {
+    "method": "proportional",
+    "note": "不适用项不扣分，基础分分母只算适用项权重。全部不适用时基础分记 0。"
+  },
+  "dimension_score": {
+    "type": "integer",
+    "min": 0,
+    "max": 10,
+    "anchors": [0, 2, 4, 6, 8, 10],
+    "evidence_min_items": 1
+  },
+  "opening": {
+    "max_total": 10,
+    "min_total": 0,
+    "formula": "count_score + mean(length_score_i) + mean(guidance_i) + mean(freedom_i)，截断到 [min_total, max_total]",
+    "greeting_sources": ["first_mes", "alternate_greetings"],
+    "greeting_sources_note": "去掉首尾空白后为空的条目不计；group_only_greetings 不计。",
+    "count_score": [
+      {"min": 1, "max": 1, "score": 0},
+      {"min": 2, "max": 2, "score": 1},
+      {"min": 3, "max": 4, "score": 2},
+      {"min": 5, "max": null, "score": 3}
+    ],
+    "length_score": [
+      {"min": 0, "max": 1499, "score": 0},
+      {"min": 1500, "max": 1999, "score": 1},
+      {"min": 2000, "max": 3500, "score": 2},
+      {"min": 3501, "max": null, "score": -0.5}
+    ],
+    "length_counting": {
+      "unit": "去掉全部空白字符后的字符数（含标点）",
+      "steps": [
+        "删除 <UpdateVariable>…</UpdateVariable>、<initvar>…</initvar>、[initvar]…[/initvar] 块",
+        "依次应用卡内正则里『仅格式显示(markdownOnly)且替换为空』的规则，删掉玩家看不到的块（如场景初始化块）",
+        "删除 ```…``` 代码围栏、<style>/<script> 块和其余 HTML 标签",
+        "删除空行和所有空白字符后计数"
+      ]
+    },
+    "guidance": {"min": 0, "max": 3, "values": [0, 1, 2, 3], "scored_by": "model"},
+    "freedom": {"min": 0, "max": 2, "values": [0, 1, 2], "scored_by": "model"}
+  },
+  "bonus": {
+    "cap": 0.8,
+    "items": [
+      {"id": "mvu", "name": "MVU 变量", "max": 0.3, "values": [0, 0.1, 0.2, 0.3], "scope": "更新规则、输出格式、initvar 初始变量。"},
+      {"id": "frontend", "name": "前端美化", "max": 0.3, "values": [0, 0.1, 0.2, 0.3], "scope": "只看正则替换出来的 HTML。"},
+      {"id": "style", "name": "文风约束", "max": 0.2, "values": [0, 0.1, 0.2], "scope": "卡里写了文风要求。只看有没有、写得是否明确，不评文风好坏。"}
+    ]
+  },
+  "deductions": {
+    "cap": 1.5,
+    "per_type_cap": 0.6,
+    "per_type_cap_note": "同一类型的扣分先合计、封顶 per_type_cap，再把各类型相加、封顶 cap。",
+    "merge_rule": "同一类型的几个轻微问题由模型合并成一条，严重度取最重一处；合并三处及以上轻微问题可记为中。",
+    "severity": {"light": 0.1, "medium": 0.3, "heavy": 0.6},
+    "require_quote": true,
+    "require_location": true,
+    "no_double_penalty": "进了扣分的问题，单项分不再因同一原句压分；替 {{user}} 说话不进扣分。",
+    "types": [
+      {"id": "contradiction", "name": "设定前后矛盾", "note": "文风/视角规则与开场白叙述写法不一致不算（文风不评）。"},
+      {"id": "duplication", "name": "同一信息重复写", "note": "只算整段（≥40 字）或成块信息重复；几句规则、几个数字在不同条目再提一次不扣。"},
+      {"id": "irrelevant", "name": "无关信息、作者笔记混入", "note": "个别『待补充』占位不扣；成段的更新日志、致谢、使用说明、开发备注才扣。"},
+      {"id": "nonsense", "name": "乱写、空话", "note": "只算错乱、空话、凑字数。"},
+      {"id": "format_error", "name": "格式或变量写错", "note": "不影响模型理解和功能的小笔误（多一行、缩进乱、错别字）不扣。"},
+      {"id": "html_to_model", "name": "大段 HTML 发给模型", "note": "只用于显示的正则 HTML 不扣；只在发送时生效、给上下文瘦身的正则也不扣。"}
+    ],
+    "html_to_model_min_chars": 3000,
+    "html_to_model_severity_reference": {"light": 3000, "medium": 10000, "heavy": 30000}
+  },
+  "lorebook_reference": {
+    "constant_chars_reference": {"light": 20000, "heavy": 50000},
+    "note": "蓝灯总字数参考线，仅供判断蓝灯体量，不是硬性扣分线。",
+    "mvu_expected_disabled_patterns": ["^\\[initvar\\]", "变量输出格式强调"],
+    "mvu_expected_disabled_note": "名称匹配这些模式的关闭条目是 MVU 惯例（由脚本读取或按需开启），不算死条目。"
+  },
+  "precomputed_stats": [
+    {"id": "greeting_count", "desc": "非空开场白数量（first_mes + alternate_greetings）"},
+    {"id": "greeting_lengths", "desc": "每条开场白正文字数及对应 length_score，按 opening.length_counting 计算"},
+    {"id": "lorebook_entry_counts", "desc": "世界书条目总数、启用数、蓝灯数、绿灯数、关闭数"},
+    {"id": "constant_total_chars", "desc": "启用蓝灯条目正文总字数，以及每条蓝灯字数"},
+    {"id": "keyword_collisions", "desc": "同一关键词出现在两个及以上启用条目里的情况"},
+    {"id": "dead_entries", "desc": "死条目：关闭的条目（排除 mvu_expected_disabled_patterns）、没有关键词的绿灯条目、关键词在其他启用内容中从未出现的绿灯条目（仅提示）"},
+    {"id": "mvu_closed_entries", "desc": "按惯例本来就关闭、不算死条目的 MVU 条目"},
+    {"id": "duplicate_paragraphs", "desc": "在两处及以上逐字重复的段落（规范化空白后不少于 40 字）及其位置"},
+    {"id": "regex_compile", "desc": "每条正则能否编译（按 JS 正则语义），失败给出错误"},
+    {"id": "regex_html", "desc": "每条正则替换结果里 HTML 的字符数，以及是否会发给模型（仅格式显示=不发；仅格式提示词=发；两者都没勾=改写原文，会发）"},
+    {"id": "html_in_prompt", "desc": "开场白、世界书等会发给模型的文本里的 HTML 字符数（只算 HTML 元素、<style>/<script> 和 ```html 围栏，不算 <核心规则> 这类语义标签），扣除会被『仅格式提示词』正则删掉的部分"}
+  ]
+}

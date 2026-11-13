@@ -1,0 +1,10 @@
+{
+  "name": "老派V1",
+  "description": "V1 描述",
+  "personality": "沉稳",
+  "scenario": "酒馆",
+  "first_mes": "你好，旅人。",
+  "mes_example": "<START>\n{{user}}: hi\n{{char}}: hello",
+  "create_date": "2024-1-1 @00h 00m 00s",
+  "talkativeness": "0.5"
+}

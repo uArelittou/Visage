@@ -1,0 +1,52 @@
+/* 注册成颜色类型，主题色换卡时才能平滑过渡，不会一跳一跳 */
+@property --theme{syntax:'<color>';inherits:true;initial-value:#a68cff}
+@property --theme-deep{syntax:'<color>';inherits:true;initial-value:#4b3391}
+:root{
+  --bg:#0b0d13;
+  --bg-up:#121620;
+  --panel:#0d1016;
+  --theme:#a68cff;
+  --theme-deep:#4b3391;
+  --text:#c9d2dd;
+  --dim:#7d8898;
+  --line:rgba(201,210,221,.12);
+  --silver:#e9edf2;
+  --wine:#4b3391;
+  --rose:#a68cff;
+  --act:#c9a961;
+  --danger:#e9a3a3;
+  --pad:clamp(18px,3.2vw,64px);
+  --wrap:min(1640px,100%);
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --show:"ZCOOL XiaoWei","Noto Serif SC",serif;
+  --latin:"Cinzel Decorative",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+/* 滚动条位置常留：进出详情页时页面高度会变，滚动条一出一收，居中的内容会左右跳 */
+html{background:var(--bg);color:var(--text);scrollbar-color:#3a4250 transparent;scrollbar-gutter:stable;
+  transition:--theme 1s ease,--theme-deep 1s ease}
+body{font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;min-height:100vh;
+  background:
+    radial-gradient(1100px 520px at 50% -120px,color-mix(in srgb,var(--theme-deep) 38%,transparent),transparent 70%),
+    linear-gradient(180deg,var(--bg-up) 0,var(--bg) 560px)}
+/* 极淡的颗粒，压掉纯色的数码感 */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:1px solid var(--act);outline-offset:4px}
+.home,.detail{position:relative;z-index:1}
+
+/* 按钮、输入框：详情页各标签页、设置页共用 */
+.tool{display:inline-flex;align-items:center;gap:8px;padding:8px 22px;font-family:var(--show);font-size:15px;letter-spacing:.2em;color:var(--text);
+  border:1px solid var(--line);transition:border-color .3s,color .3s,box-shadow .3s}
+.tool svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5}
+.tool:hover:not(:disabled){color:var(--silver);border-color:color-mix(in srgb,var(--theme) 60%,transparent);box-shadow:0 0 18px -6px var(--theme)}
+.tool:disabled{opacity:.5}
+.tool.main{background:linear-gradient(180deg,#e9edf2,#a9b1bc);color:#151920;border-color:transparent}
+.tool.sm{padding:6px 18px;font-size:14px}
+.in{display:block;width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);font:inherit;font-size:14.5px;line-height:1.8;padding:9px 12px;resize:vertical}
+.in:focus{outline:none;border-color:color-mix(in srgb,var(--theme) 55%,transparent)}
+select.in option{background:#12161d}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

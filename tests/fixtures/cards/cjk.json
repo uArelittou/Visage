@@ -1,0 +1,29 @@
+{
+  "spec": "chara_card_v2",
+  "spec_version": "2.0",
+  "data": {
+    "name": "モンスター娘🐉",
+    "description": "中文、日本語、한국어、emoji 😀👨‍👩‍👧‍👦🏳️‍🌈、Ünïcödé、🚀 与 \"引号\" \\ 反斜杠\n换行",
+    "personality": "",
+    "scenario": "",
+    "first_mes": "你好呀 (｡･ω･｡)ﾉ♡",
+    "mes_example": "",
+    "creator_notes": "",
+    "system_prompt": "",
+    "post_history_instructions": "",
+    "alternate_greetings": [
+      "こんにちは🌸"
+    ],
+    "tags": [
+      "中文标签",
+      "🏷️"
+    ],
+    "creator": "作者🙂",
+    "character_version": "",
+    "extensions": {
+      "备注": {
+        "键🔑": "值✅"
+      }
+    }
+  }
+}

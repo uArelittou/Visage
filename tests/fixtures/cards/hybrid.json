@@ -1,0 +1,103 @@
+{
+  "spec": "chara_card_v2",
+  "spec_version": "2.0",
+  "unknown_root_key": {
+    "keep": [
+      1,
+      2,
+      3
+    ]
+  },
+  "data": {
+    "name": "二号机",
+    "description": "V2 描述",
+    "personality": "冷静",
+    "scenario": "实验室",
+    "first_mes": "启动完毕。",
+    "mes_example": "",
+    "creator_notes": "作者备注",
+    "system_prompt": "你是二号机",
+    "post_history_instructions": "保持角色",
+    "alternate_greetings": [
+      "问候一",
+      "问候二"
+    ],
+    "tags": [
+      "科幻",
+      "机器人"
+    ],
+    "creator": "tester",
+    "character_version": "1.2",
+    "x_unknown_field": {
+      "a": [
+        1,
+        {
+          "b": null
+        }
+      ],
+      "c": "中文"
+    },
+    "character_book": {
+      "name": "内嵌书",
+      "extensions": {},
+      "entries": [
+        {
+          "keys": [
+            "k1"
+          ],
+          "content": "词条内容",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 0,
+          "uid": 7,
+          "_filename": "keep.me"
+        }
+      ]
+    },
+    "extensions": {
+      "talkativeness": "0.7",
+      "regex_scripts": [
+        {
+          "id": "r1",
+          "scriptName": "去括号",
+          "findRegex": "/\\(.*?\\)/g",
+          "replaceString": ""
+        }
+      ],
+      "tavern_helper": {
+        "scripts": [
+          {
+            "type": "script",
+            "enabled": true,
+            "name": "助手脚本",
+            "id": "s1",
+            "content": "console.log('hi')"
+          }
+        ],
+        "variables": {
+          "hp": 100
+        }
+      },
+      "my_custom_plugin": {
+        "deep": {
+          "x": [
+            1,
+            2,
+            {
+              "y": null
+            }
+          ]
+        },
+        "flag": true,
+        "num": 1.5
+      }
+    }
+  },
+  "name": "二号机",
+  "description": "V2 描述",
+  "personality": "冷静",
+  "scenario": "实验室",
+  "first_mes": "启动完毕。",
+  "mes_example": "",
+  "avatar": "none"
+}

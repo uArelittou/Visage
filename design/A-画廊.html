@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>卡包 · 方案 A 画廊</title>
+<style>
+:root{--wall:#ECEEF0;--paper:#FFFFFF;--ink:#1E2226;--dim:#80868E;--line:#D9DDE1;--accent:#3D5A80}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;background:var(--wall);color:var(--ink)}
+.serif{font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",serif}
+header{display:flex;align-items:baseline;gap:34px;padding:34px 56px 26px}
+.logo{font-size:30px;font-weight:700;letter-spacing:4px}
+nav{display:flex;gap:22px;font-size:14px;color:var(--dim)}
+nav a{cursor:pointer;padding-bottom:4px;border-bottom:1px solid transparent}
+nav a.on{color:var(--ink);border-bottom-color:var(--ink)}
+.search{margin-left:auto;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;background:var(--paper)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:44px 34px;padding:10px 56px 80px}
+.it{cursor:pointer}
+.it .fr{background:var(--paper);padding:10px;box-shadow:0 1px 0 var(--line),0 12px 24px -18px rgba(30,34,38,.35);transition:transform .25s}
+.it:hover .fr{transform:translateY(-4px)}
+.art{display:block;width:100%;aspect-ratio:2/3}
+.it .nm{margin-top:12px;font-size:16px;text-align:center}
+/* detail */
+.detail{display:none;grid-template-columns:minmax(300px,420px) 1fr;gap:64px;padding:10px 56px 80px;align-items:start}
+.show .grid{display:none}.show .detail{display:grid}
+.left{position:sticky;top:24px}
+.left .fr{background:var(--paper);padding:14px;box-shadow:0 20px 40px -26px rgba(30,34,38,.45)}
+.back{font-size:13px;color:var(--dim);cursor:pointer;margin-bottom:18px;display:inline-block}
+h1{font-size:44px;font-weight:700;line-height:1.2}
+.by{color:var(--dim);margin:10px 0 18px;font-size:14px}
+.tags{display:flex;gap:8px}.tags i{font-style:normal;font-size:12px;color:var(--accent);border:1px solid #C5D0DE;padding:2px 10px;border-radius:99px}
+.desc{margin:22px 0 30px;line-height:1.95;max-width:62ch;font-size:16px}
+.tabs{display:flex;gap:28px;border-bottom:1px solid var(--line)}
+.tabs a{padding:10px 0;font-size:14px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs em{font-style:normal;font-size:12px;margin-left:5px}
+.pane{padding:26px 0;max-width:68ch;line-height:1.9}
+blockquote{font-size:17px;line-height:2.05;white-space:pre-wrap;border-left:2px solid var(--accent);padding-left:22px}
+.pg{display:flex;gap:16px;margin-top:18px;font-size:13px;color:var(--dim)}.pg a{cursor:pointer;color:var(--accent)}
+dl div{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+dt{font-weight:600}dd{margin:0;font-size:12px;color:var(--accent)}
+.off{opacity:.4}.r{margin-left:auto;font-size:12px;color:var(--dim)}
+pre{background:var(--paper);border:1px solid var(--line);padding:16px;font-size:12px;overflow:auto}
+.rate{display:flex;gap:40px;align-items:baseline}.rate b{font-size:48px}
+.note{position:fixed;right:16px;bottom:12px;font-size:12px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){.it .fr{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo serif">卡包</div>
+  <nav><a class="on">全部</a><a>自用</a><a>收藏</a><a>待整理</a></nav>
+  <div class="search" title="搜索"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+</header>
+<main id="m">
+  <div class="grid" id="grid"></div>
+  <div class="detail" id="detail"></div>
+</main>
+<div class="note">方案 A · 封面和分数是占位</div>
+<script>
+const C=[
+{n:'《道渊》v5.1',a:'玄机子',t:['仙侠','Sci-Fi'],wb:285,rx:9,gr:2,sc:4.6,h:[255,205]},
+{n:'人生模拟器',a:'模拟社',t:['模拟'],wb:140,rx:12,gr:2,sc:4.8,h:[300,330]},
+{n:'怪奇录',a:'夜行',t:['鬼怪','民俗'],wb:64,rx:3,gr:2,sc:4.1,h:[350,15]},
+{n:'海贼王叙事者',a:'草帽',t:['冒险'],wb:96,rx:4,gr:2,sc:4.3,h:[200,230]},
+{n:'安达与岛村',a:'白昼',t:['校园'],wb:18,rx:2,gr:2,sc:3.9,h:[150,190]},
+{n:'谎言系统',a:'K',t:['都市'],wb:22,rx:5,gr:2,sc:3.4,h:[30,50]},
+{n:'郭公之巢',a:'灰鸦',t:['悬疑'],wb:30,rx:1,gr:2,sc:3.1,h:[90,120]},
+{n:'秦始皇',a:'史官',t:['历史'],wb:41,rx:0,gr:2,sc:2.8,h:[15,40]},
+{n:'雪国列车长',a:'北风',t:['末日'],wb:77,rx:6,gr:2,sc:4.5,h:[190,220]},
+{n:'猫咖店长',a:'团子',t:['日常'],wb:9,rx:1,gr:2,sc:3.6,h:[35,330]}];
+const WB=[['NPC人物生成规则',[],1],['秘境/遗迹生成',[],1],['林若悠',['玉灵宫圣女','空明幻体'],1],['宫银叶',['残影身法','青云步'],1],['玄天界宗门',[],0]];
+const RX=[['[美化]变量更新中','AI回复',1],['[不发送]去除变量更新','AI回复',1],['不输出思考','AI回复',1],['仅输出最后三条状态栏','AI回复',0]];
+const GR=['（山门外的雨下了三天。）\n\n你睁开眼时，掌心那枚灰白道种正微微发烫。远处传来钟声，九响，是玄天宗收徒的日子。\n\n「醒了？」披着雨蓑的少女蹲在你面前，「你在泥里躺了半宿。」','赛博坊市的霓虹映在积水里。\n\n你的义眼弹出一行字：道种同步率 3%。'];
+function art(c,p){const[a,b]=c.h;return`<svg class="art" viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g${p}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${a} 45% 66%)"/><stop offset="1" stop-color="hsl(${b} 50% 26%)"/></linearGradient><radialGradient id="r${p}" cx=".5" cy=".32" r=".6"><stop offset="0" stop-color="hsl(${a} 90% 92%)" stop-opacity=".7"/><stop offset="1" stop-color="hsl(${a} 90% 92%)" stop-opacity="0"/></radialGradient></defs><rect width="200" height="300" fill="url(#g${p})"/><rect width="200" height="300" fill="url(#r${p})"/><circle cx="100" cy="120" r="34" fill="hsl(${b} 40% 14%)" opacity=".75"/><path d="M26 300C34 206 166 206 174 300Z" fill="hsl(${b} 40% 14%)" opacity=".8"/></svg>`}
+const g=document.getElementById('grid'),m=document.getElementById('m');
+g.innerHTML=C.map((c,i)=>`<div class="it" onclick="open_(${i})"><div class="fr">${art(c,'c'+i)}</div><div class="nm serif">${c.n}</div></div>`).join('');
+let gi=0,cur;
+function open_(i){cur=C[i];gi=0;const c=cur;
+document.getElementById('detail').innerHTML=`<div class="left"><a class="back" onclick="m.classList.remove('show')">返回</a><div class="fr">${art(c,'d')}</div></div>
+<div><h1 class="serif">${c.n}</h1><div class="by">${c.a} 制作</div><div class="tags">${c.t.map(x=>`<i>${x}</i>`).join('')}</div>
+<p class="desc serif">玄天界，灵气与算力共生。你是被宗门遗弃的外门弟子，体内藏着一枚无人认得的道种。</p>
+<div class="tabs" id="tb">${[['开场白',c.gr],['世界书',c.wb],['正则',c.rx],['脚本',1],['评分','']].map(([a,b],k)=>`<a data-k="${k}" class="${k?'':'on'}">${a}${b!==''?`<em>${b}</em>`:''}</a>`).join('')}</div><div class="pane" id="pn"></div></div>`;
+m.classList.add('show');document.querySelectorAll('#tb a').forEach(a=>a.onclick=()=>{document.querySelectorAll('#tb a').forEach(x=>x.classList.remove('on'));a.classList.add('on');pane(+a.dataset.k)});pane(0);scrollTo(0,0)}
+function pane(k){const p=document.getElementById('pn');
+if(k==0)p.innerHTML=`<blockquote class="serif">${GR[gi]}</blockquote><div class="pg"><span>${gi+1} / ${GR.length}</span><a onclick="gi=(gi+1)%GR.length;pane(0)">下一个开场</a></div>`;
+if(k==1)p.innerHTML=`<dl>${WB.map(w=>`<div class="${w[2]?'':'off'}"><dt>${w[0]}</dt>${w[1].map(x=>`<dd>${x}</dd>`).join('')}<span class="r">${w[2]?'':'已关闭'}</span></div>`).join('')}</dl>`;
+if(k==2)p.innerHTML=`<dl>${RX.map(w=>`<div class="${w[2]?'':'off'}"><dt>${w[0]}</dt><dd>${w[1]}</dd><span class="r">${w[2]?'':'已禁用'}</span></div>`).join('')}</dl>`;
+if(k==3)p.innerHTML=`<pre>eventOn(tavern_events.MESSAGE_RECEIVED, () => {
+  const vars = getVariables({ type: 'chat' });
+  renderStatusBar(vars['道种同步率']);
+});</pre>`;
+if(k==4)p.innerHTML=`<div class="rate"><b class="serif">${cur.sc.toFixed(1)}</b><span style="color:var(--dim)">评分标准待定</span></div>`}
+</script>
+</body>
+</html>

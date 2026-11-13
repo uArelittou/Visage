@@ -1,0 +1,30 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 前端
+frontend/node_modules/
+frontend/dist/
+
+# 打包产物
+build/
+dist/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 本机数据与密钥（应用数据默认在 %LOCALAPPDATA%\qianmianlu，不应进仓库）
+config.json
+*.db
+*.db-shm
+*.db-wal
+.env
+
+# 真实角色卡样本，一律不随仓库发布（对应测试在缺文件时自动跳过）
+tests/fixtures/rating/*.card.json
+tests/fixtures/rating/*.output.json

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>卡包 方案 A2 展厅</title>
+<style>
+:root{
+  --wall:#7E8681;      /* 展厅墙面：灰绿 */
+  --wall-dim:#5F6662;  /* 关灯后的墙 */
+  --lettering:#EEF0EC; /* 墙上刻字 */
+  --plate:#F5F5F2;     /* 展签 */
+  --ink:#1D201F;
+  --mute:#6B726E;
+  --sheet:#EDEFEC;     /* 图录纸 */
+  --dot:#B3261E;       /* 画廊红点 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--wall)}
+body{font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;color:var(--ink);background:var(--wall);transition:background-color .7s ease;min-height:100vh}
+body.viewing{background:var(--wall-dim)}
+.serif{font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--lettering);outline-offset:4px}
+
+/* 顶栏：只有名字和搜索 */
+.top{display:flex;align-items:center;justify-content:space-between;padding:28px clamp(24px,6vw,96px)}
+.brand{font-size:18px;color:var(--lettering);letter-spacing:.3em}
+.find{width:34px;height:34px;display:grid;place-items:center;color:var(--lettering);opacity:.75}
+.find:hover{opacity:1}
+
+/* 展厅 */
+.room{padding:56px clamp(24px,6vw,96px) 40px}
+.room-title{display:flex;align-items:baseline;gap:18px;color:var(--lettering);margin-bottom:56px}
+.room-title h2{font-size:clamp(34px,4.4vw,56px);font-weight:300;letter-spacing:.08em}
+.room-title span{font-size:13px;opacity:.7}
+.hang{display:flex;flex-wrap:wrap;gap:72px 64px;align-items:flex-end}
+
+/* 展品：作品 + 右下角展签 */
+.work{display:flex;align-items:flex-end;gap:14px;text-align:left;position:relative}
+.canvas{position:relative;width:188px}
+.canvas::before{ /* 顶灯打在墙上的光 */
+  content:"";position:absolute;left:50%;top:-70px;width:340px;height:440px;transform:translateX(-50%);
+  background:radial-gradient(ellipse 50% 46% at 50% 40%,rgba(255,252,240,.30),rgba(255,252,240,0) 70%);
+  pointer-events:none;transition:opacity .45s ease;opacity:.7;z-index:0}
+.work:hover .canvas::before,.work:focus-visible .canvas::before{opacity:1}
+.canvas svg{position:relative;z-index:1;display:block;width:100%;aspect-ratio:2/3;
+  box-shadow:0 1px 2px rgba(0,0,0,.35),0 22px 28px -16px rgba(0,0,0,.5)}
+.plate{position:relative;z-index:1;width:92px;background:var(--plate);padding:8px 10px 9px;font-size:12px;line-height:1.5;
+  box-shadow:0 1px 1px rgba(0,0,0,.25);margin-bottom:6px}
+
+/* 单件展品 */
+.exhibit{display:none}
+body.viewing .hall{display:none}
+body.viewing .exhibit{display:block}
+.back{color:var(--lettering);font-size:13px;opacity:.75;padding:4px 0}
+.back:hover{opacity:1}
+.stage{display:grid;grid-template-columns:minmax(260px,400px) minmax(0,560px);gap:clamp(40px,7vw,112px);align-items:center;
+  padding:24px clamp(24px,6vw,96px) 96px}
+.stage .canvas{width:100%}
+.stage .canvas::before{width:180%;height:150%;top:-22%;opacity:0;transition:opacity 1.1s ease .25s;
+  background:radial-gradient(ellipse 48% 46% at 50% 44%,rgba(255,250,232,.42),rgba(255,250,232,0) 72%)}
+body.lit .stage .canvas::before{opacity:1}
+.walltext{color:var(--lettering)}
+.walltext h1{font-size:clamp(36px,4.6vw,60px);font-weight:400;line-height:1.2;letter-spacing:.02em}
+.walltext .who{margin-top:14px;font-size:14px;opacity:.8}
+.walltext .desc{margin-top:36px;font-size:17px;line-height:2.1;max-width:30em}
+
+/* 图录：功能都在这里 */
+.sheet{background:var(--sheet);display:grid;grid-template-columns:180px minmax(0,1fr);gap:clamp(32px,5vw,80px);
+  padding:72px clamp(24px,6vw,96px) 120px;min-height:70vh}
+.index{position:sticky;top:32px;align-self:start;display:flex;flex-direction:column;gap:4px}
+.index button{display:flex;justify-content:space-between;padding:9px 0 9px 14px;font-size:15px;color:var(--mute);border-left:1px solid transparent;text-align:left}
+.index button[aria-current="true"]{color:var(--ink);border-left-color:var(--ink)}
+.index button small{font-size:12px;font-variant-numeric:tabular-nums}
+.index .edit{margin-top:28px;color:var(--ink);font-size:13px;padding-left:14px;justify-content:flex-start;text-decoration:underline;text-underline-offset:4px}
+.pane{max-width:40em}
+.pane h3{font-size:24px;font-weight:400;margin-bottom:28px}
+.passage{font-size:18px;line-height:2.15;white-space:pre-wrap}
+.turn{display:flex;gap:24px;align-items:center;margin-top:36px;font-size:13px;color:var(--mute)}
+.turn button{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+.entries{list-style:none}
+.entries li{display:grid;grid-template-columns:1fr auto;gap:4px 20px;padding:16px 0;border-top:1px solid #D3D7D3}
+.entries li:last-child{border-bottom:1px solid #D3D7D3}
+.entries b{font-weight:500}
+.entries .k{grid-column:1;font-size:13px;color:var(--mute)}
+.entries .s{grid-row:1;grid-column:2;font-size:12px;color:var(--mute)}
+.entries .off{opacity:.45}
+.try{margin-top:36px}
+.try label{display:block;font-size:13px;color:var(--mute);margin-bottom:8px}
+.try textarea{width:100%;min-height:84px;padding:12px;font:inherit;font-size:14px;border:1px solid #C9CEC9;background:#F8F9F7;resize:vertical}
+pre{background:#E1E4E0;padding:20px;font-size:13px;line-height:1.7;overflow:auto;font-family:Consolas,"Cascadia Mono",monospace}
+.score{display:flex;align-items:baseline;gap:16px}
+.score b{font-size:88px;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
+.score span{color:var(--mute);font-size:14px}
+.score-note{margin-top:28px;color:var(--mute);font-size:14px;line-height:1.9}
+.redot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--dot);margin-right:8px;vertical-align:1px}
+
+.note{position:fixed;right:16px;bottom:12px;font-size:12px;color:var(--lettering);opacity:.55}
+
+@media (max-width:760px){
+  .stage{grid-template-columns:1fr}
+  .sheet{grid-template-columns:1fr}
+  .index{position:static;flex-direction:row;flex-wrap:wrap}
+  .index button{border-left:0;border-bottom:1px solid transparent;padding:8px 10px}
+  .index button[aria-current="true"]{border-bottom-color:var(--ink)}
+  .hang{gap:48px 32px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- 画布颗粒：让占位封面像颜料而不像渐变按钮 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</svg>
+
+<header class="top">
+  <div class="brand serif">卡包</div>
+  <button class="find" aria-label="搜索"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+</header>
+
+<main>
+  <div class="hall" id="hall"></div>
+  <article class="exhibit" id="exhibit"></article>
+</main>
+
+<div class="note">方案 A2 展厅，封面和数据是占位</div>
+
+<script>
+const ROOMS=['自用','收藏','待整理'];
+const C=[
+{n:'道渊',a:'玄机子',t:['仙侠','赛博'],r:0,wb:285,rx:9,gr:2,sc:4.6,h:[205,28],k:0},
+{n:'人生模拟器',a:'模拟社',t:['模拟'],r:0,wb:140,rx:12,gr:2,sc:4.8,h:[340,200],k:1},
+{n:'怪奇录',a:'夜行',t:['鬼怪','民俗'],r:0,wb:64,rx:3,gr:2,sc:4.1,h:[12,220],k:2},
+{n:'雪国列车长',a:'北风',t:['末日'],r:0,wb:77,rx:6,gr:2,sc:4.5,h:[210,30],k:3},
+{n:'海贼王叙事者',a:'草帽',t:['冒险'],r:1,wb:96,rx:4,gr:2,sc:4.3,h:[195,40],k:1},
+{n:'安达与岛村',a:'白昼',t:['校园'],r:1,wb:18,rx:2,gr:2,sc:3.9,h:[150,330],k:0},
+{n:'猫咖店长',a:'团子',t:['日常'],r:1,wb:9,rx:1,gr:2,sc:3.6,h:[35,190],k:3},
+{n:'谎言系统',a:'K',t:['都市'],r:2,wb:22,rx:5,gr:2,sc:3.4,h:[250,15],k:2},
+{n:'郭公之巢',a:'灰鸦',t:['悬疑'],r:2,wb:30,rx:1,gr:2,sc:3.1,h:[95,260],k:1},
+{n:'秦始皇',a:'史官',t:['历史'],r:2,wb:41,rx:0,gr:2,sc:2.8,h:[25,210],k:0}];
+const WB=[['NPC 人物生成规则','常驻',1],['秘境与遗迹生成','常驻',1],['林若悠','玉灵宫圣女，空明幻体',1],['宫银叶','残影身法，青云步',1],['玄天界宗门','宗门，门派',0]];
+const RX=[['变量更新中','美化 AI 回复',1],['去除变量更新','不发送',1],['不输出思考','AI 回复',1],['只留最后三条状态栏','AI 回复',0]];
+const GR=['（山门外的雨下了三天。）\n\n你睁开眼时，掌心那枚灰白道种正微微发烫。远处传来钟声，九响，是玄天宗收徒的日子。\n\n「醒了？」披着雨蓑的少女蹲在你面前，「你在泥里躺了半宿。」','赛博坊市的霓虹映在积水里。\n\n你的义眼弹出一行字：道种同步率 3%。'];
+
+/* 占位封面：四种构图，低饱和，带颗粒 */
+function art(c,id){
+  const[a,b]=c.h,sky=`hsl(${a} 22% 62%)`,deep=`hsl(${a} 26% 30%)`,warm=`hsl(${b} 38% 70%)`,dark=`hsl(${a} 20% 16%)`;
+  const shapes=[
+    `<rect y="190" width="200" height="110" fill="${deep}"/><circle cx="132" cy="96" r="26" fill="${warm}"/><path d="M0 200 L60 150 L95 178 L140 128 L200 186 V300 H0Z" fill="${dark}" opacity=".85"/>`,
+    `<rect x="34" y="40" width="132" height="190" fill="${deep}"/><rect x="54" y="62" width="92" height="146" fill="${warm}" opacity=".55"/><path d="M100 120 a20 20 0 1 1 0.1 0Z M70 230 C76 170 124 170 130 230Z" fill="${dark}"/>`,
+    `<path d="M0 0 H200 V120 C140 160 60 100 0 150Z" fill="${deep}"/><circle cx="64" cy="70" r="14" fill="${warm}"/><path d="M84 300 C86 210 114 210 116 300Z M100 196 a13 13 0 1 1 0.1 0Z" fill="${dark}"/>`,
+    `<rect width="200" height="300" fill="${deep}" opacity=".35"/><path d="M0 240 H200 V300 H0Z" fill="${dark}"/><path d="M30 240 V150 H70 V240 M90 240 V110 H120 V240 M140 240 V170 H175 V240" fill="${dark}" opacity=".8"/><circle cx="150" cy="70" r="18" fill="${warm}" opacity=".9"/>`
+  ];
+  return `<svg viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${c.n} 封面"><rect width="200" height="300" fill="${sky}"/>${shapes[c.k]}<rect width="200" height="300" filter="url(#grain)" fill="#000"/></svg>`;
+}
+
+const hall=document.getElementById('hall'),ex=document.getElementById('exhibit');
+hall.innerHTML=ROOMS.map((r,ri)=>{const list=C.map((c,i)=>[c,i]).filter(([c])=>c.r===ri);return `
+<section class="room" aria-label="${r}">
+  <div class="room-title"><h2 class="serif">${r}</h2><span>${list.length} 件</span></div>
+  <div class="hang">${list.map(([c,i])=>`
+    <button class="work" onclick="openCard(${i})" aria-label="${c.n}">
+      <div class="canvas">${art(c,'h'+i)}</div>
+      <div class="plate serif">${c.n}</div>
+    </button>`).join('')}</div>
+</section>`}).join('');
+
+let cur,gi=0,sec=0,lastScroll=0;
+function openCard(i){
+  cur=C[i];gi=0;sec=0;lastScroll=scrollY;const c=cur;
+  ex.innerHTML=`
+  <div style="padding:0 clamp(24px,6vw,96px)"><button class="back" onclick="closeCard()">返回展厅</button></div>
+  <div class="stage">
+    <div class="canvas">${art(c,'d')}</div>
+    <div class="walltext">
+      <h1 class="serif">${c.n}</h1>
+      <p class="who">${c.a} 作，${c.t.join('，')}</p>
+      <p class="desc serif">玄天界，灵气与算力共生。你是被宗门遗弃的外门弟子，体内藏着一枚无人认得的道种。</p>
+    </div>
+  </div>
+  <section class="sheet">
+    <nav class="index" id="idx"></nav>
+    <div class="pane" id="pn"></div>
+  </section>`;
+  document.body.classList.add('viewing');
+  scrollTo(0,0);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.add('lit')));
+  drawIndex();pane();
+  ex.querySelector('.back').focus({preventScroll:true});
+}
+function closeCard(){document.body.classList.remove('viewing','lit');scrollTo(0,lastScroll)}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('viewing'))closeCard()});
+
+const SECS=()=>[['开场白',cur.gr],['世界书',cur.wb],['正则',cur.rx],['脚本',1],['评分','']];
+function drawIndex(){
+  document.getElementById('idx').innerHTML=SECS().map(([a,b],k)=>`<button aria-current="${k===sec}" onclick="sec=${k};drawIndex();pane()">${a}<small>${b}</small></button>`).join('')+`<button class="edit">编辑这张卡</button>`;
+}
+function pane(){
+  const p=document.getElementById('pn');
+  if(sec===0)p.innerHTML=`<h3 class="serif">开场白</h3><p class="passage serif">${GR[gi]}</p>
+    <div class="turn"><span>第 ${gi+1} 段，共 ${GR.length} 段</span><button onclick="gi=(gi+GR.length-1)%GR.length;pane()">上一段</button><button onclick="gi=(gi+1)%GR.length;pane()">下一段</button></div>`;
+  if(sec===1)p.innerHTML=`<h3 class="serif">世界书</h3><ul class="entries">${WB.map(w=>`<li class="${w[2]?'':'off'}"><b>${w[0]}</b><span class="k">${w[1]}</span><span class="s">${w[2]?'':'未启用'}</span></li>`).join('')}</ul>`;
+  if(sec===2)p.innerHTML=`<h3 class="serif">正则</h3><ul class="entries">${RX.map(w=>`<li class="${w[2]?'':'off'}"><b>${w[0]}</b><span class="k">${w[1]}</span><span class="s">${w[2]?'':'未启用'}</span></li>`).join('')}</ul>
+    <div class="try"><label for="tx">输入一段文字，看正则处理后的样子</label><textarea id="tx">&lt;thinking&gt;这段会被去掉&lt;/thinking&gt;雨还在下。</textarea></div>`;
+  if(sec===3)p.innerHTML=`<h3 class="serif">脚本</h3><pre>eventOn(tavern_events.MESSAGE_RECEIVED, () => {
+  const vars = getVariables({ type: 'chat' });
+  renderStatusBar(vars['道种同步率']);
+});</pre>`;
+  if(sec===4)p.innerHTML=`<h3 class="serif">评分</h3><div class="score"><b class="serif">${cur.sc.toFixed(1)}</b><span>满分 5</span></div>
+    <p class="score-note">评分标准还没定，这里先放总分。</p>`;
+}
+</script>
+</body>
+</html>

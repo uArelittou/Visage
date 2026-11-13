@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>卡包 · 方案 C 拆卡包</title>
+<style>
+:root{--table:#D5DDD3;--ink:#23302A;--dim:#6E7A72;--plum:#5E4A8C;--card:#FFFFFF;--line:#BFC9BD}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;background:var(--table);color:var(--ink);min-height:100vh}
+header{display:flex;align-items:center;gap:16px;padding:30px 52px}
+.logo{font-size:26px;font-weight:800;letter-spacing:3px}
+.crumb{font-size:15px;color:var(--dim);cursor:pointer}
+.ic{margin-left:auto;cursor:pointer;color:var(--dim)}
+.packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:56px 44px;padding:20px 52px 80px}
+.pk{cursor:pointer;text-align:center}
+.stk{position:relative;width:170px;aspect-ratio:2/3;margin:0 auto}
+.stk .c{position:absolute;inset:0;border-radius:14px;overflow:hidden;border:5px solid var(--card);box-shadow:0 10px 20px -14px rgba(35,48,42,.6);transition:transform .3s}
+.stk .c:nth-child(1){transform:rotate(-8deg) translateX(-14px)}
+.stk .c:nth-child(2){transform:rotate(5deg) translateX(12px)}
+.pk:hover .c:nth-child(1){transform:rotate(-14deg) translateX(-30px)}
+.pk:hover .c:nth-child(2){transform:rotate(11deg) translateX(28px)}
+.pk .nm{margin-top:22px;font-weight:700;font-size:17px}
+.pk .ct{font-size:12px;color:var(--dim);margin-top:2px}
+.cards{display:none;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:34px 26px;padding:20px 52px 80px}
+.inpack .packs{display:none}.inpack .cards{display:grid}
+.cd{cursor:pointer}
+.cd .c{border-radius:14px;overflow:hidden;border:5px solid var(--card);box-shadow:0 10px 20px -14px rgba(35,48,42,.6);transition:transform .2s}
+.cd:hover .c{transform:translateY(-6px) rotate(-1deg)}
+.cd .nm{margin-top:10px;font-size:14px;font-weight:600;text-align:center}
+.art{display:block;width:100%;aspect-ratio:2/3}
+/* detail */
+.ov{display:none;position:fixed;inset:0;background:rgba(213,221,211,.94);backdrop-filter:blur(6px);z-index:9;overflow:auto}
+.open .ov{display:block}
+.dl{display:grid;grid-template-columns:360px 1fr;gap:56px;max-width:1180px;margin:0 auto;padding:56px 52px}
+.flip{perspective:1200px}
+.fc{border-radius:18px;overflow:hidden;border:7px solid var(--card);box-shadow:0 30px 50px -30px rgba(35,48,42,.7);animation:flip .6s ease-out}
+@keyframes flip{from{transform:rotateY(-180deg)}to{transform:none}}
+.x{font-size:13px;color:var(--dim);cursor:pointer;display:inline-block;margin-bottom:16px}
+h1{font-size:40px;font-weight:800}
+.by{color:var(--dim);margin:8px 0 14px}
+.tags{display:flex;gap:8px}.tags i{font-style:normal;font-size:12px;padding:3px 10px;border-radius:6px;background:var(--card);color:var(--plum)}
+.tabs{display:flex;gap:4px;margin:30px 0 0;background:#C7D0C5;padding:4px;border-radius:10px;width:max-content}
+.tabs a{font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;color:var(--dim)}
+.tabs a.on{background:var(--card);color:var(--ink);font-weight:600}
+.pane{margin-top:20px;line-height:1.9;max-width:66ch}
+.sheet{background:var(--card);border-radius:12px;padding:24px 26px}
+.sheet p{white-space:pre-wrap;font-size:16px;line-height:2}
+.pg{display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:var(--dim)}.pg a{cursor:pointer;color:var(--plum)}
+.row{display:flex;gap:10px;align-items:baseline;padding:12px 0;border-bottom:1px solid #EEF1ED;flex-wrap:wrap}.row:last-child{border:0}
+.row b{font-weight:600}.row small{font-size:12px;color:var(--plum)}.row .r{margin-left:auto;font-size:12px;color:var(--dim)}
+.off{opacity:.4}
+pre{font-size:12px;overflow:auto}
+.rate b{font-size:56px;font-weight:800;color:var(--plum)}
+.note{position:fixed;right:16px;bottom:12px;font-size:12px;color:var(--dim);z-index:20}
+@media (prefers-reduced-motion:reduce){.fc{animation:none}.stk .c,.cd .c{transition:none}}
+</style>
+</head>
+<body>
+<div id="m">
+<header><div class="logo">卡包</div><span class="crumb" id="cr"></span>
+<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></header>
+<div class="packs" id="packs"></div>
+<div class="cards" id="cards"></div>
+<div class="ov" id="ov"></div>
+</div>
+<div class="note">方案 C · 首页每一叠是一个文件夹，封面和分数是占位</div>
+<script>
+const C=[
+{n:'《道渊》v5.1',a:'玄机子',t:['仙侠','Sci-Fi'],wb:285,rx:9,gr:2,sc:4.6,h:[255,205],f:0},
+{n:'人生模拟器',a:'模拟社',t:['模拟'],wb:140,rx:12,gr:2,sc:4.8,h:[300,330],f:0},
+{n:'怪奇录',a:'夜行',t:['鬼怪','民俗'],wb:64,rx:3,gr:2,sc:4.1,h:[350,15],f:1},
+{n:'海贼王叙事者',a:'草帽',t:['冒险'],wb:96,rx:4,gr:2,sc:4.3,h:[200,230],f:1},
+{n:'安达与岛村',a:'白昼',t:['校园'],wb:18,rx:2,gr:2,sc:3.9,h:[150,190],f:0},
+{n:'谎言系统',a:'K',t:['都市'],wb:22,rx:5,gr:2,sc:3.4,h:[30,50],f:2},
+{n:'郭公之巢',a:'灰鸦',t:['悬疑'],wb:30,rx:1,gr:2,sc:3.1,h:[90,120],f:2},
+{n:'秦始皇',a:'史官',t:['历史'],wb:41,rx:0,gr:2,sc:2.8,h:[15,40],f:3},
+{n:'雪国列车长',a:'北风',t:['末日'],wb:77,rx:6,gr:2,sc:4.5,h:[190,220],f:1},
+{n:'猫咖店长',a:'团子',t:['日常'],wb:9,rx:1,gr:2,sc:3.6,h:[35,330],f:3}];
+const F=['自用','收藏','待整理','历史向'];
+const WB=[['NPC人物生成规则',[],1],['秘境/遗迹生成',[],1],['林若悠',['玉灵宫圣女','空明幻体'],1],['宫银叶',['残影身法','青云步'],1],['玄天界宗门',[],0]];
+const RX=[['[美化]变量更新中','AI回复',1],['[不发送]去除变量更新','AI回复',1],['不输出思考','AI回复',1],['仅输出最后三条状态栏','AI回复',0]];
+const GR=['（山门外的雨下了三天。）\n\n你睁开眼时，掌心那枚灰白道种正微微发烫。远处传来钟声，九响，是玄天宗收徒的日子。\n\n「醒了？」披着雨蓑的少女蹲在你面前，「你在泥里躺了半宿。」','赛博坊市的霓虹映在积水里。\n\n你的义眼弹出一行字：道种同步率 3%。'];
+function art(c,p){const[a,b]=c.h;return`<svg class="art" viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g${p}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${a} 50% 62%)"/><stop offset="1" stop-color="hsl(${b} 55% 24%)"/></linearGradient><radialGradient id="r${p}" cx=".5" cy=".32" r=".6"><stop offset="0" stop-color="hsl(${a} 90% 90%)" stop-opacity=".7"/><stop offset="1" stop-color="hsl(${a} 90% 90%)" stop-opacity="0"/></radialGradient></defs><rect width="200" height="300" fill="url(#g${p})"/><rect width="200" height="300" fill="url(#r${p})"/><circle cx="100" cy="120" r="34" fill="hsl(${b} 40% 13%)" opacity=".78"/><path d="M26 300C34 206 166 206 174 300Z" fill="hsl(${b} 40% 13%)" opacity=".82"/></svg>`}
+const m=document.getElementById('m'),cr=document.getElementById('cr');
+document.getElementById('packs').innerHTML=F.map((f,fi)=>{const cs=C.filter(c=>c.f==fi);return`<div class="pk" onclick="pack(${fi})"><div class="stk">${cs.slice(0,3).reverse().map((c,k)=>`<div class="c">${art(c,'p'+fi+k)}</div>`).join('')}</div><div class="nm">${f}</div><div class="ct">${cs.length} 张</div></div>`}).join('');
+function home(){m.classList.remove('inpack');cr.textContent=''}
+function pack(fi){m.classList.add('inpack');cr.innerHTML=`<span onclick="home()">全部卡包</span> / ${F[fi]}`;
+document.getElementById('cards').innerHTML=C.map((c,i)=>[c,i]).filter(([c])=>c.f==fi).map(([c,i])=>`<div class="cd" onclick="op(${i})"><div class="c">${art(c,'k'+i)}</div><div class="nm">${c.n}</div></div>`).join('')}
+let gi=0,cur;
+function op(i){cur=C[i];gi=0;const c=cur;
+document.getElementById('ov').innerHTML=`<div class="dl"><div class="flip"><a class="x" onclick="m.classList.remove('open')">放回卡包</a><div class="fc">${art(c,'d')}</div></div>
+<div><h1>${c.n}</h1><div class="by">${c.a} 制作</div><div class="tags">${c.t.map(x=>`<i>${x}</i>`).join('')}</div>
+<div class="tabs" id="tb">${['开场白','人设','世界书 '+c.wb,'正则 '+c.rx,'脚本','评分'].map((x,k)=>`<a data-k="${k}" class="${k?'':'on'}">${x}</a>`).join('')}</div><div class="pane" id="pn"></div></div></div>`;
+m.classList.add('open');document.querySelectorAll('#tb a').forEach(a=>a.onclick=()=>{document.querySelectorAll('#tb a').forEach(x=>x.classList.remove('on'));a.classList.add('on');pane(+a.dataset.k)});pane(0)}
+function pane(k){const p=document.getElementById('pn');
+if(k==0)p.innerHTML=`<div class="sheet"><p>${GR[gi]}</p><div class="pg"><span>${gi+1} / ${GR.length}</span><a onclick="gi=(gi+1)%GR.length;pane(0)">下一个开场</a></div></div>`;
+if(k==1)p.innerHTML=`<div class="sheet"><p>玄天界，灵气与算力共生。你是被宗门遗弃的外门弟子，体内藏着一枚无人认得的道种。</p></div>`;
+if(k==2)p.innerHTML=`<div class="sheet">${WB.map(w=>`<div class="row ${w[2]?'':'off'}"><b>${w[0]}</b>${w[1].map(x=>`<small>${x}</small>`).join('')}<span class="r">${w[2]?'':'已关闭'}</span></div>`).join('')}</div>`;
+if(k==3)p.innerHTML=`<div class="sheet">${RX.map(w=>`<div class="row ${w[2]?'':'off'}"><b>${w[0]}</b><small>${w[1]}</small><span class="r">${w[2]?'':'已禁用'}</span></div>`).join('')}</div>`;
+if(k==4)p.innerHTML=`<div class="sheet"><pre>eventOn(tavern_events.MESSAGE_RECEIVED, () => {
+  const vars = getVariables({ type: 'chat' });
+  renderStatusBar(vars['道种同步率']);
+});</pre></div>`;
+if(k==5)p.innerHTML=`<div class="rate"><b>${cur.sc.toFixed(1)}</b><div style="color:var(--dim)">评分标准待定</div></div>`}
+</script>
+</body>
+</html>
